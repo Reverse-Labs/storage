@@ -42,3 +42,7 @@ func (kv *KV) Get(key string, v interface{}) error {
 
 	return kv.marshaler.Unmarshal(b, v)
 }
+
+func (kv *KV) List(prefix string) []string {
+	return kv.storage.List(prefix)
+}
