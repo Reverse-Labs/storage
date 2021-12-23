@@ -18,6 +18,17 @@ type S3 struct {
 	client *minio.Client
 }
 
+func FromCfg(cfg ConnectionProfile, bucket string) (s3 *S3, err error) {
+	s3 = new(S3)
+
+	cfg.URL = strings.TrimPrefix(cfg.URL, "https://")
+	s3.Bucket = bucket
+	s3.client, err = minio.New(
+		cfg.URL, &minio.Options{Creds: credentials.NewStaticV4(cfg.AccessKey, cfg.SecretKey, "")},
+	)
+	return
+}
+
 func FromConfig(alias string, bucket string) (s3 *S3, err error) {
 	ReadConfig()
 	s3 = new(S3)
@@ -90,4 +101,8 @@ func (s3 *S3) List(prefix string) []string {
 	}
 
 	return ls
+}
+
+func (s3 *S3) MakeBucket(name string) error {
+	return s3.client.MakeBucket(context.Background(), name, minio.MakeBucketOptions{})
 }
